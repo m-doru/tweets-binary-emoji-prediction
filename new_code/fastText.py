@@ -1,2 +1,0 @@
-from fastText import train_supervised
-from fastText import train_unsupervised
