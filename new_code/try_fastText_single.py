@@ -5,12 +5,12 @@ import logging
 import itertools as it
 import os
 
-logging.basicConfig(filename='fastText_trainings.log',level=logging.INFO,
+logging.basicConfig(filename='fastText_trainings_single.log',level=logging.INFO,
         format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
 
 TRAINING_SET = os.path.join('processed_data', 'train_total_full.txt')
 
-SWAP_FILE = os.path.join('processed_data', 'swap_file.txt')
+SWAP_FILE = os.path.join('processed_data', 'swap_file_single.txt')
 LABEL_IDENTIFIER = '__label__'
 SEPARATOR = ' , '
 
@@ -39,12 +39,6 @@ class FastTextClassifier:
     def score(self, X, y):
         predicted = self.predict(X)
 
-        unique_predicted, counts_predicted = np.unique(predicted, return_counts=True)
-        unique_true, counts_true = np.unique(y, return_counts=True)
-
-        print("True: ", unique_true, counts_true)
-        print("Predicted: ", unique_predicted, counts_predicted)
-
         return (np.count_nonzero(predicted == y) * 1.0) / len(y)
 
 def construct_dataset_from_file(filename):
@@ -70,7 +64,6 @@ def construct_dataset_from_file(filename):
     return X, y
 
 def get_accuracy(params, X_train, y_train, X_test, y_test):
-    logging.info("\n################################################################")
 
     classifier = FastTextClassifier(params)
     classifier.fit(X_train, y_train)
@@ -84,16 +77,16 @@ def get_accuracy(params, X_train, y_train, X_test, y_test):
     print("Training accuracy: " + str(training_accuracy))
     print("Test accuracy: " + str(test_accuracy))
 
-parameters = {'lr':[0.1, 0.5, 1.0], # try to vary this further
-          'dim':[10, 50], # try to vary this further
+parameters = {'lr':[0.05],
+          'dim':[10, 20, 30, 50, 100],
           'ws':[5],
-          'epoch':[5, 10], # to try to vary this, also
-          'minCount':[1, 3],
+          'epoch':[10, 15],
+          'minCount':[1],
           'minCountLabel':[0],
           'minn':[2],
           'maxn':[7],
           'neg':[5],
-          'wordNgrams':[5, 6, 7],
+          'wordNgrams':[4],
           'loss':['softmax'],
           'bucket':[10000000],
           'thread':[8],
@@ -104,7 +97,6 @@ parameters = {'lr':[0.1, 0.5, 1.0], # try to vary this further
 varNames = sorted(parameters)
 combinations = [dict(zip(varNames, prod)) for prod in it.product(*(parameters[varName] for varName in varNames))]
 
-logging.info("################################################################")
 logging.info("################################################################")
 
 # np.random.seed(100)
