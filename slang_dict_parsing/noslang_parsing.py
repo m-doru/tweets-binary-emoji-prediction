@@ -21,7 +21,7 @@ def uncensor(text):
   :return: text with uncensored words
   '''
   for censored in sorted(bad_words_dict.keys(), key=lambda item: (-len(item), item)):
-    text.replace(censored, uncensored)
+    text = text.replace(censored, bad_words_dict[censored])
   return text
 
 def parse_noslang():
