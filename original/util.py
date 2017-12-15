@@ -34,3 +34,20 @@ def construct_dataset_from_files(filenames, split_size=0.1):
 
     return X, y
 
+def construct_test_from_file(filename):
+    tweets = []
+    ids = []
+
+    with open(filename, 'r', encoding='utf8') as f:
+        for line in f:
+            id, tweet = line.split(',', 1)
+            ids.append(id)
+            tweets.append(tweet)
+
+    return np.array(tweets), np.array(ids)
+
+def create_submission(filename, predictions, ids):
+    with open(filename, 'w', encoding='utf8') as f:
+        f.write('Id,Prediction\n')
+        for id, prediction in zip(ids, predictions):
+            f.write(str(id) + ',' + str(prediction) + '\n')

@@ -9,7 +9,7 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 import pickle
 
-MODEL_FILE = os.path.join('processed_data', 'wiki.en.vec')
+MODEL_FILE = os.path.join('processed_data', 'glove.twitter.27B.200d.txt')
 SERIALIZED_PARAMS_FILE = os.path.join('processed_data', 'serialized', 'all_params.bin')
 MAX_SEQUENCE_LENGTH = 30
 MAX_NB_WORDS = None
@@ -21,11 +21,11 @@ def read_pretrained_model():
     with open(MODEL_FILE) as f:
         coefs = []
 
-        first_line = True
+        # first_line = True
         for line in f:
-            if first_line: # drop first line
-                first_line = False
-                continue
+            # if first_line: # drop first line
+            #     first_line = False
+            #     continue
 
             try:
                 values = line.strip().split()
@@ -109,7 +109,7 @@ def fastText_keras(X_train, y_train, X_test, y_test):
     model = Model(sequence_input, preds)
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    model.fit(X_train, y_train, batch_size=128, nb_epoch=100, validation_data=(X_test, y_test))
+    model.fit(X_train, y_train, batch_size=128, nb_epoch=2, validation_data=(X_test, y_test))
 
     training_accuracy = model.evaluate(X_train, y_train)
     test_accuracy = model.evaluate(X_test, y_test)

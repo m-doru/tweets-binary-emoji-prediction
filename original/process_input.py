@@ -1,11 +1,18 @@
-import os
-import itertools
-import re
-import enchant
 import codecs
+import itertools
+import os
+import re
+from multiprocessing import Pool
 
 FILES_FULL = ["train_pos_full.txt", 'train_neg_full.txt']
 FILES_PARTIAL = ["train_pos.txt", 'train_neg.txt']
+ENGLISH_DICTIONARY_FILE = os.path.join('dicos', 'english_dictionary.txt')
+
+compiled_regexes = {re.compile(r"\'ve"): " have",
+                    re.compile(r"\'re"): " are",
+                    re.compile(r"\'d"): " would",
+                    re.compile(r"\'ll"): " will",
+                    re.compile(r"\s{2,}"): ' '}
 
 
 def process(process_function, file_append):
@@ -26,8 +33,17 @@ def process_remove_duplicates(tweets):
     tweets = list(map(lambda x: x.strip(), tweets))
     return list(set(tweets))
 
-def remove_repetitions(tweet, dictionary):
 
+def load_english_dictionary():
+    en_dict = set()
+    with open(ENGLISH_DICTIONARY_FILE, 'r') as f:
+        for line in f:
+            en_dict.add(line.strip())
+
+    return en_dict
+
+
+def remove_repetitions(tweet, dictionary):
     """
     Functions that remove noisy character repetition like for instance :
     llloooooooovvvvvve ====> love
@@ -36,14 +52,15 @@ def remove_repetitions(tweet, dictionary):
     Arguments: tweet (the tweet)
 
     """
-    tweet = tweet.split()
-    for i in range(len(tweet)):
-        tweet[i] = ''.join(''.join(s)[:2] for _, s in itertools.groupby(tweet[i])).replace('#', '')
-        if len(tweet[i]) > 0:
-            if not dictionary.check(tweet[i]):
-                tweet[i] = ''.join(''.join(s)[:1] for _, s in itertools.groupby(tweet[i])).replace('#', '')
-    tweet = ' '.join(tweet)
-    return tweet
+    processed_tweet = ""
+
+    for word in tweet.split():
+        word = ''.join(''.join(s)[:2] for _, s in itertools.groupby(word)).replace('#', '')
+        if len(word) > 0 and (not (word in dictionary)):
+            word = ''.join(''.join(s)[:1] for _, s in itertools.groupby(word))
+        processed_tweet += (word + ' ')
+    return processed_tweet[:-1]
+
 
 def correct_spell(tweet, slang_dictionary):
     """
@@ -59,6 +76,7 @@ def correct_spell(tweet, slang_dictionary):
     tweet = ' '.join(tweet)
     return tweet
 
+
 def clean(tweet, slang_dictionary, dictionary):
     """
     Function that cleans the tweet using the functions above and some regular expressions
@@ -67,23 +85,14 @@ def clean(tweet, slang_dictionary, dictionary):
     Arguments: tweet (the tweet)
 
     """
-    # Separates the contractions and the punctuation
-    # tweet = re.sub("\'s", " \'s", tweet)
-    # tweet = re.sub("\'ve", " \'ve", tweet)
-    # tweet = re.sub("n\'t", " n\'t", tweet)
-    # tweet = re.sub("\'re", " \'re", tweet)
-    # tweet = re.sub("\'d", " \'d", tweet)
-    # tweet = re.sub("\'ll", " \'ll", tweet)
-    # tweet = re.sub(",", " , ", tweet)
-    #
-    # tweet = re.sub("\(", " \( ", tweet)
-    # tweet = re.sub("\)", " \) ", tweet)
-    # tweet = re.sub('\?', " \? ", tweet)
-    tweet = str(re.sub("\s{2,}", " ", tweet))
-    tweet = remove_repetitions(tweet, dictionary)
+
+    for regex, replace_with in compiled_regexes.items():
+        tweet = regex.sub(replace_with, tweet)
     tweet = correct_spell(tweet, slang_dictionary)
+    tweet = remove_repetitions(tweet, dictionary)
 
     return tweet
+
 
 def construct_dictionaries():
     dico = {}
@@ -106,9 +115,14 @@ def construct_dictionaries():
         dico[word[0]] = word[1]
     dico3.close()
 
-    d = enchant.Dict('en_US')
+    d = load_english_dictionary()
 
     return dico, d
+
+slang_dictionary, dictionary = construct_dictionaries()
+
+def clean_tweet(tweet):
+    return clean(tweet, slang_dictionary, dictionary)
 
 def process_last_year(tweets):
     """
@@ -123,10 +137,10 @@ def process_last_year(tweets):
 
     """
 
-    slang_dictionary, dictionary = construct_dictionaries()
-    tweets_processed = [clean(tweet, slang_dictionary, dictionary) for tweet in tweets]
-
+    with Pool(processes=8) as pool:
+        tweets_processed = pool.map(clean_tweet, tweets)
 
     return process_remove_duplicates(tweets_processed)
+
 
 process(process_last_year, 'last_year')

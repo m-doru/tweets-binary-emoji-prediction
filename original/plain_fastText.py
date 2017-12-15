@@ -12,9 +12,13 @@ LABEL_IDENTIFIER = '__label__'
 SEPARATOR = ' , '
 
 class FastTextClassifier:
-    def __init__(self, params):
+    def __init__(self, params, name):
         self.model = None
         self.params = params
+        self.name = name
+
+    def get_name(self):
+        return self.name
 
     def fit(self, X, y):
         with open(SWAP_FILE, 'w', encoding='utf8') as f:
@@ -31,6 +35,19 @@ class FastTextClassifier:
 
             prediction = (self.model.predict(tweet.strip(), 1)[0][0])[9:]
             result.append(prediction)
+
+        return np.array(result)
+
+    def predict_proba(self, X):
+        result = []
+
+        for tweet in X:
+            labels, probs = self.model.predict(tweet.strip(), 2)
+
+            if labels[0] == '__label__-1':
+                result.append(probs)
+            else:
+                result.append([probs[1], probs[0]])
 
         return np.array(result)
 
@@ -61,3 +78,9 @@ def fastText_plain(X_train, y_train, X_test, y_test, params):
     print("Test accuracy: " + str(test_accuracy))
 
     return classifier
+
+def fastText_plain_submission(X_train, y_train, X_test, params):
+    classifier = FastTextClassifier(params)
+    classifier.fit(X_train, y_train)
+
+    return classifier.predict(X_test)
