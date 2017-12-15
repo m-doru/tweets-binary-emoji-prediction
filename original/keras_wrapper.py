@@ -11,6 +11,7 @@ FASTTEXT_PATH = os.path.join('..','sent2vec','fasttext')
 class KerasModelWrapper:
   def __init__(self, model, id, batch_size, epochs, sent2vec=False):
     self.model = model
+    self.model_weights = model.get_weights()
     self.id = id
     self.fit_params = {
       'batch_size':batch_size,
@@ -19,6 +20,8 @@ class KerasModelWrapper:
     self.sent2vec = sent2vec
 
   def fit(self, X, y):
+    self.model.set_weights(self.model_weights)
+
     if self.sent2vec:
       X = self._get_sent2vec_embeddings(X)
 

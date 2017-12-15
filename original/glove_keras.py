@@ -66,6 +66,7 @@ def construct_embedding_matrix(word_index, embeddings_index):
 
 
 def pretrained_glove_keras_model(X_train_tweets, y_train):
+  np.random.seed(777)
   embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
 
   X_train, word_index = transform_tweets_to_sequences(X_train_tweets, True)
@@ -99,6 +100,4 @@ def pretrained_glove_keras_model(X_train_tweets, y_train):
                 optimizer='adam',
                 metrics=['accuracy'])
 
-  wrapped_model = KerasModelWrapper(model, 'glove_pretrained_{}D_keras_conv1D'.format(EMBEDDING_DIM), 128, 2)
-
-  return wrapped_model
+  return KerasModelWrapper(model, 'glove_pretrained_{}D_keras_conv1D'.format(EMBEDDING_DIM), 128, 2)
