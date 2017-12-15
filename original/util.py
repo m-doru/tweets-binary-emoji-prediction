@@ -21,7 +21,7 @@ def construct_dataset_from_files(filenames, split_size=0.1):
         with open(filename, 'r', encoding='utf8') as f:
             for tweet in f:
                 X.append(tweet)
-                y.append(label)
+                y.append(int(label))
 
     X = np.array(X)
     y = np.array(y)

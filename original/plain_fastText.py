@@ -34,7 +34,7 @@ class FastTextClassifier:
         for tweet in X:
 
             prediction = (self.model.predict(tweet.strip(), 1)[0][0])[9:]
-            result.append(prediction)
+            result.append(int(prediction))
 
         return np.array(result)
 
@@ -56,7 +56,7 @@ class FastTextClassifier:
 
         for tweet, label in zip(X, y):
             prediction = (self.model.predict(tweet.strip(), 1)[0][0])[9:]
-            if prediction == str(label):
+            if int(prediction) == label:
                 correct += 1
 
         return (correct * 1.0) / len(y)
