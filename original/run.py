@@ -8,6 +8,8 @@ from stacking import stacking_test_accuracy, stacking_submission
 from fastText_keras import fastText_keras
 from plain_fastText import fastText_plain, fastText_plain_submission, FastTextClassifier
 from util import construct_dataset_from_files, construct_test_from_file, create_submission
+from sent2vec_keras import trained_sent2vec_keras_model
+from keras_wrapper import KerasModelWrapper
 
 logging.basicConfig(filename=os.path.join('logs', 'logs.log'), level=logging.INFO,
                     format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
@@ -85,6 +87,17 @@ multiple_params_fastText = {'lr': [0.05],  # try to vary this further
                             't': [0.0001],
                             'verbose': [2]}
 
+params_glove_keras_model_conv = {'model':None,
+                            'id':'glove_pretrained_keras_conv1D',
+                            'batch_size':128,
+                            'epochs':2,
+                            'architecture':'glove_conv'}
+params_glove_keras_model_lstm = {'model':None,
+                            'id':'glove_pretrained_keras_lstm',
+                            'batch_size':128,
+                            'epochs':2,
+                            'architecture':'glove_lstm'}
+
 
 def get_training_files_for_params(full_dataset, prefix):
     if full_dataset:
@@ -93,7 +106,7 @@ def get_training_files_for_params(full_dataset, prefix):
     return {os.path.join('data', prefix + base_file): label for base_file, label in TRAINING_FILES_PARTIAL.items()}
 
 SUBMISSION = False
-FULL_DATASET = True
+FULL_DATASET = True 
 PREFIX = 'no_dups_'
 
 np.random.seed(0)
@@ -106,7 +119,13 @@ def create_ensemble_classifiers():
     classifier = FastTextClassifier(parameters_fastText_plain, "fastText_plain_" + str(parameters_fastText_plain))
     classifiers.append(classifier)
 
-    classifier = FastTextClassifier(parameters_pretrained_fastText_plain, "fastText_plain_pretrained+" + str(parameters_pretrained_fastText_plain))
+    classifier = KerasModelWrapper(**params_glove_keras_model_conv)
+    classifiers.append(classifier)
+
+    classifier = KerasModelWrapper(**params_glove_keras_model_lstm)
+    classifiers.append(classifier)
+
+    classifier = trained_sent2vec_keras_model()  
     classifiers.append(classifier)
 
     return classifiers

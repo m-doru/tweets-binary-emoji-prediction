@@ -119,7 +119,7 @@ def construct_dictionaries():
 
     return dico, d
 
-slang_dictionary, dictionary = construct_dictionaries()
+#slang_dictionary, dictionary = construct_dictionaries()
 
 def clean_tweet(tweet):
     return clean(tweet, slang_dictionary, dictionary)
@@ -143,4 +143,4 @@ def process_last_year(tweets):
     return process_remove_duplicates(tweets_processed)
 
 
-process(process_last_year, 'last_year')
+process(process_remove_duplicates, 'no_dups')

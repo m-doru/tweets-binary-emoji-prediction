@@ -11,7 +11,7 @@ def trained_sent2vec_keras_model():
   np.random.seed(777)
   model = Sequential()
 
-  model.add(Dense(700, activation='relu', input_shape=(X_train.shape[1],),kernel_regularizer=regularizers.l2(0.001)))
+  model.add(Dense(700, activation='relu', input_shape=(700,),kernel_regularizer=regularizers.l2(0.001)))
   model.add(Dropout(0.2))
   model.add(Dense(700, activation='relu', kernel_regularizer=regularizers.l2(0.001)))
   model.add(Dropout(0.2))
@@ -25,6 +25,6 @@ def trained_sent2vec_keras_model():
 
   model.compile(loss='binary_crossentropy', optimizer=RMSprop(), metrics=['accuracy'])
 
-  return KerasModelWrapper(model, 'sent2vec_trained_keras_model', 128, 2)
+  return KerasModelWrapper(model, 'sent2vec_trained_keras_model', 128, 2, 'sent2vec')
 
 

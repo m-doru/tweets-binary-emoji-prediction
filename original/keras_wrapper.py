@@ -2,34 +2,40 @@ import os
 import numpy as np
 import keras.models
 from hashlib import sha1
-from sklearn import preprocessing
 
-from glove_keras import pretrained_glove_keras_model
+from glove_keras import pretrained_glove_keras_model_conv
+from glove_keras import pretrained_glove_keras_model_lstm
 
 BASE_DIR = '../data'
 SENT2VEC_MODEL_PATH = os.path.join(BASE_DIR, 'twitter_bigrams.bin')
 FASTTEXT_PATH = os.path.join('..','sent2vec','fasttext')
 
 class KerasModelWrapper:
-  def __init__(self, model, id, batch_size, epochs, sent2vec=False):
+  def __init__(self, model, id, batch_size, epochs, architecture=None, tokenizer=None, max_seq_len=None):
     self.model = model
-    self.model_weights = model.get_weights()
     self.id = id
     self.fit_params = {
       'batch_size':batch_size,
       'epochs':epochs
     }
-    self.sent2vec = sent2vec
+    self.architecture = architecture 
+    self.tokenizer = tokenizer
+    self.max_seq_len = max_seq_len
+    if model is not None:
+        self.model_weights = model.get_weights()
 
   def fit(self, X, y):
-    if self.sent2vec:
+    y = y.copy()
+    y[y==-1] = 0
+
+    if self.architecture == 'sent2vec':
       X = self._get_sent2vec_embeddings(X)
       self.model.set_weights(self.model_weights)
-    else:
-      self.model = pretrained_glove_keras_model(X, y)
+    elif self.architecture == 'glove_conv':
+      self.model, X, self.tokenizer, self.max_seq_len = pretrained_glove_keras_model_conv(X)
+    elif self.architecture == 'glove_lstm':
+      self.model, X, self.tokenizer, self.max_seq_len = pretrained_glove_keras_model_lstm(X)
 
-
-    X = preprocessing.scale(X)
 
     identifier_x = sha1(X).hexdigest()
     identifier_y = sha1(y).hexdigest()
@@ -43,9 +49,25 @@ class KerasModelWrapper:
       self.model.save(model_save_filepath)
 
   def predict(self, X):
-    return self.model.predict(X)
+    if self.sent2vec:
+        X = self._get_sent2vec_embeddings(X)
+    else:
+        X = self.tokenizer.text_to_sequences(X)
+        X = pad_sequences(X, maxlen=self.max_seq_len)
+
+    preds = self.model.predict(X)
+    preds[preds==0] = -1
+    return preds
 
   def score(self, X, y):
+    if self.sent2vec:
+        X = self._get_sent2vec_embeddings(X)
+    else:
+        X = self.tokenizer.text_to_sequences(X)
+        X = pad_sequences(X, maxlen=self.max_seq_len)
+
+    y = y.copy()
+    y[y==-1]=0
     preds = self.model.predict(X)
 
     return (np.count_nonzero(preds == y) * 1.0) / len(y)

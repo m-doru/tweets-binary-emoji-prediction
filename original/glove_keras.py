@@ -4,23 +4,15 @@ import numpy as np
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras.layers import Dense, Input, GlobalMaxPooling1D, Flatten
-from keras.layers import Conv1D, MaxPooling1D, Embedding, Convolution1D
-from keras.models import Model
-
-from keras_wrapper import KerasModelWrapper
+from keras.layers import Conv1D, MaxPooling1D, Embedding, Convolution1D, LSTM
+from keras.models import Model, Sequential
 
 MAX_SEQUENCE_LENGTH = 100
-MAX_NB_WORDS = None
+MAX_NB_WORDS = 60000 
 EMBEDDING_DIM = 200
-VALIDATION_SPLIT = 0.2
 
 BASE_DIR = '../data/'
 GLOVE_DIR = os.path.join(BASE_DIR, 'glove')
-
-POS_FULL_FILEPATH = os.path.join(BASE_DIR, 'train_pos_full.txt')
-NEG_FULL_FILEPATH = os.path.join(BASE_DIR, 'train_neg_full.txt')
-POS_FILEPATH = os.path.join(BASE_DIR, 'train_pos.txt')
-NEG_FILEPATH = os.path.join(BASE_DIR, 'train_neg.txt')
 
 PRETRAINED_EMBEDDINGS_FILE = os.path.join(GLOVE_DIR, 'glove.twitter.27B.{}d.txt'.format(EMBEDDING_DIM))
 
@@ -37,7 +29,7 @@ def read_pretrained_glove_embeddings(path):
   return embeddings_index
 
 def transform_tweets_to_sequences(X, pad=True):
-    tokenizer = Tokenizer(num_words=MAX_NB_WORDS, filters=' ')  # don't delete anything but space
+    tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
     tokenizer.fit_on_texts(X)
     sequences = tokenizer.texts_to_sequences(X)
 
@@ -48,57 +40,68 @@ def transform_tweets_to_sequences(X, pad=True):
     if pad:
       sequences = pad_sequences(sequences, maxlen=MAX_SEQUENCE_LENGTH)
 
-    return sequences, word_index
+    return sequences, word_index, tokenizer
 
 
 def construct_embedding_matrix(word_index, embeddings_index):
-  if MAX_NB_WORDS is None:
-    num_words = len(word_index) + 1
-  else:
-    num_words = min(MAX_NB_WORDS, len(word_index)) + 1
+  num_words = min(MAX_NB_WORDS, len(word_index))
 
   embedding_matrix = np.zeros((num_words, EMBEDDING_DIM))
-  for word, index in word_index.items():
-    if ((MAX_NB_WORDS is None) or index < MAX_NB_WORDS) and (word in embeddings_index):
-      embedding_matrix[index] = embeddings_index[word]
+  for word, i in word_index.items():
+    if i >= MAX_NB_WORDS:
+        continue
+    embedding_vector = embeddings_index.get(word)
+    if embedding_vector is not None:
+        # words not found in embedding index will be all-zeros.
+        embedding_matrix[i] = embedding_vector
 
   return embedding_matrix
 
 
-def pretrained_glove_keras_model(X_train_tweets=None):
-  if X_train_tweets is None:
-    return KerasModelWrapper(None, 'glove_pretrained_{}D_keras_conv1D'.format(EMBEDDING_DIM), 128, 2)
+def pretrained_glove_keras_model_conv(X_train_tweets):
   np.random.seed(777)
   embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
 
-  X_train, word_index = transform_tweets_to_sequences(X_train_tweets, True)
+  X_train, word_index, tokenizer = transform_tweets_to_sequences(X_train_tweets, True)
 
   print('Shape of data tensor:', X_train.shape)
 
   embedding_matrix = construct_embedding_matrix(word_index, embeddings_index)
 
-  embedding_layer = Embedding(embedding_matrix.shape[0],
-                              embedding_matrix.shape[1],
-                              weights=[embedding_matrix],
-                              input_length=MAX_SEQUENCE_LENGTH,
-                              trainable=False)
+  model = Sequential()
+  model.add(Embedding(embedding_matrix.shape[0], embedding_matrix.shape[1], input_length=X_train.shape[1], weights=[embedding_matrix]))
+  model.add(Convolution1D(nb_filter=32, filter_length=3, border_mode='same', activation='relu'))
+  model.add(MaxPooling1D(pool_length=2))
+  model.add(Flatten())
+  model.add(Dense(250, activation='relu'))
+  model.add(Dense(1, activation='sigmoid'))
+  model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+  print(model.summary())
 
-  # prepare a 1D convnet with global maxpooling
-  sequence_input = Input(shape=(MAX_SEQUENCE_LENGTH,), dtype='int32')
-  embedded_sequences = embedding_layer(sequence_input)
-  x = Conv1D(nb_filter=32, filter_length=5, border_mode='same', activation='relu')(embedded_sequences)
-  x = MaxPooling1D(2)(x)
-  x = Conv1D(128, 5, activation='relu')(x)
-  x = MaxPooling1D(2)(x)
-  x = Conv1D(nb_filter=128, filter_length=5, activation='relu')(x)
-  x = GlobalMaxPooling1D()(x)
-  x = Dense(250, activation='relu')(x)
+  return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH
 
-  preds = Dense(1, activation='softmax')(x)
+def pretrained_glove_keras_model_lstm(X_train_tweets):
+  np.random.seed(777)
+  embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
 
-  model = Model(sequence_input, preds)
-  model.compile(loss='categorical_crossentropy',
-                optimizer='adam',
-                metrics=['accuracy'])
+  X_train, word_index, tokenizer = transform_tweets_to_sequences(X_train_tweets, True)
 
-  return model
+  print('Shape of data tensor:', X_train.shape)
+
+  embedding_matrix = construct_embedding_matrix(word_index, embeddings_index)
+
+  model = Sequential()
+  model.add(Embedding(embedding_matrix.shape[0], 
+                      embedding_matrix.shape[1], 
+                      weights=[embedding_matrix],
+                      input_length=MAX_SEQUENCE_LENGTH,
+                      trainable=False))
+                      
+  model.add(Convolution1D(nb_filter=32, filter_length=3, border_mode='same', activation='relu'))
+  model.add(MaxPooling1D(pool_length=2))
+  model.add(LSTM(100))
+  model.add(Dense(1, activation='sigmoid'))
+  model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+  print(model.summary())
+
+  return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH
