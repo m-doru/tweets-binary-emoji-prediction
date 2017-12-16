@@ -9,7 +9,7 @@ from keras.models import Model
 
 from keras_wrapper import KerasModelWrapper
 
-MAX_SEQUENCE_LENGTH = 1000
+MAX_SEQUENCE_LENGTH = 100
 MAX_NB_WORDS = None
 EMBEDDING_DIM = 200
 VALIDATION_SPLIT = 0.2
@@ -65,14 +65,13 @@ def construct_embedding_matrix(word_index, embeddings_index):
   return embedding_matrix
 
 
-def pretrained_glove_keras_model(X_train_tweets, y_train):
+def pretrained_glove_keras_model(X_train_tweets):
   np.random.seed(777)
   embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
 
   X_train, word_index = transform_tweets_to_sequences(X_train_tweets, True)
 
   print('Shape of data tensor:', X_train.shape)
-  print('Shape of label tensor:', y_train.shape)
 
   embedding_matrix = construct_embedding_matrix(word_index, embeddings_index)
 
@@ -100,4 +99,4 @@ def pretrained_glove_keras_model(X_train_tweets, y_train):
                 optimizer='adam',
                 metrics=['accuracy'])
 
-  return KerasModelWrapper(model, 'glove_pretrained_{}D_keras_conv1D'.format(EMBEDDING_DIM), 128, 2)
+  return model

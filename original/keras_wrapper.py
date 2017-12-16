@@ -4,6 +4,8 @@ import keras.models
 from hashlib import sha1
 from sklearn import preprocessing
 
+from glove_keras import pretrained_glove_keras_model
+
 BASE_DIR = '../data'
 SENT2VEC_MODEL_PATH = os.path.join(BASE_DIR, 'twitter_bigrams.bin')
 FASTTEXT_PATH = os.path.join('..','sent2vec','fasttext')
@@ -20,10 +22,12 @@ class KerasModelWrapper:
     self.sent2vec = sent2vec
 
   def fit(self, X, y):
-    self.model.set_weights(self.model_weights)
-
     if self.sent2vec:
       X = self._get_sent2vec_embeddings(X)
+      self.model.set_weights(self.model_weights)
+    else:
+      self.model = pretrained_glove_keras_model(X, y)
+
 
     X = preprocessing.scale(X)
 
