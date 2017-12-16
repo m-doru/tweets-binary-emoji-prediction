@@ -1,7 +1,12 @@
 import os
+import subprocess
 import numpy as np
-import keras.models
 from hashlib import sha1
+
+import pandas as pd
+
+import keras.models
+from keras.preprocessing.sequence import pad_sequences
 
 from glove_keras import pretrained_glove_keras_model_conv
 from glove_keras import pretrained_glove_keras_model_lstm
@@ -49,10 +54,10 @@ class KerasModelWrapper:
       self.model.save(model_save_filepath)
 
   def predict(self, X):
-    if self.sent2vec:
+    if self.architecture == 'sent2vec':
         X = self._get_sent2vec_embeddings(X)
-    else:
-        X = self.tokenizer.text_to_sequences(X)
+    elif self.architecture in ['glove_conv','glove_lstm']:
+        X = self.tokenizer.texts_to_sequences(X)
         X = pad_sequences(X, maxlen=self.max_seq_len)
 
     preds = self.model.predict(X)
@@ -81,21 +86,20 @@ class KerasModelWrapper:
         f.write(tweet.strip() + '\n')
       f.flush()
 
-    subprocess.call(FASTTEXT_PATH +
-                    'print-sentence-vectors' +
+    print(subprocess.call(FASTTEXT_PATH +
+                    ' print-sentence-vectors ' +
                     SENT2VEC_MODEL_PATH +
-                    '<' +
+                    ' < ' +
                     SWAP_FILE_TWEETS +
-                    '>' +
-                    SWAP_FILE_EMBEDDINGS, shell=True)
+                    ' > ' +
+                    SWAP_FILE_EMBEDDINGS, shell=True))
 
 
     df = pd.read_csv(SWAP_FILE_EMBEDDINGS, sep=' ', header=None)
     df.drop(df.columns[-1], axis=1, inplace=True)
-    df.drop(df.index[-1], inplace=True)
     embeddings = df.values.astype('float64')
 
     os.remove(SWAP_FILE_TWEETS)
     os.remove(SWAP_FILE_EMBEDDINGS)
 
-    return embeddings
+    return embeddings.copy(order='C')

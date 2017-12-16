@@ -116,7 +116,7 @@ np.random.seed(0)
 def create_ensemble_classifiers():
     classifiers = []
 
-    classifier = FastTextClassifier(parameters_fastText_plain, "fastText_plain_" + str(parameters_fastText_plain))
+    classifier = trained_sent2vec_keras_model()  
     classifiers.append(classifier)
 
     classifier = KerasModelWrapper(**params_glove_keras_model_conv)
@@ -125,7 +125,7 @@ def create_ensemble_classifiers():
     classifier = KerasModelWrapper(**params_glove_keras_model_lstm)
     classifiers.append(classifier)
 
-    classifier = trained_sent2vec_keras_model()  
+    classifier = FastTextClassifier(parameters_fastText_plain, "fastText_plain_" + str(parameters_fastText_plain))
     classifiers.append(classifier)
 
     return classifiers

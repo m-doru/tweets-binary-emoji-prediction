@@ -76,7 +76,6 @@ def pretrained_glove_keras_model_conv(X_train_tweets):
   model.add(Dense(250, activation='relu'))
   model.add(Dense(1, activation='sigmoid'))
   model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-  print(model.summary())
 
   return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH
 
@@ -102,6 +101,5 @@ def pretrained_glove_keras_model_lstm(X_train_tweets):
   model.add(LSTM(100))
   model.add(Dense(1, activation='sigmoid'))
   model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-  print(model.summary())
 
   return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH

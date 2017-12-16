@@ -21,7 +21,7 @@ def trained_sent2vec_keras_model():
   model.add(Dropout(0.2))
   model.add(Dense(1, activation='sigmoid'))
   # Compile model
-  model.summary()
+  _ = model.summary()
 
   model.compile(loss='binary_crossentropy', optimizer=RMSprop(), metrics=['accuracy'])
 
