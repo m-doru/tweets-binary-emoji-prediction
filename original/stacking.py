@@ -1,8 +1,8 @@
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, ShuffleSplit
 import numpy as np
 import logging
 
-NUMBER_FOLDS = 3
+NUMBER_FOLDS = 1
 
 
 def create_predictions_for_classifier(classifier, X_train, y_train, X_test):
@@ -12,7 +12,9 @@ def create_predictions_for_classifier(classifier, X_train, y_train, X_test):
     return predictions
 
 def create_folds_predictions(classifiers, X_train, y_train):
-    kFold = KFold(n_splits=NUMBER_FOLDS, shuffle=True, random_state=0)
+    np.random.seed(7)
+    #kFold = KFold(n_splits=NUMBER_FOLDS, shuffle=True, random_state=0)
+    kFold = ShuffleSplit(n_splits=NUMBER_FOLDS, random_state=0, test_size=0.2, train_size=None) 
 
     classifiers_fold_predictions = [[] for _ in range(len(classifiers))]
     folds_real_labels = []
@@ -54,6 +56,18 @@ def create_folds_and_test_predictions(classifiers, X_train, y_train, X_test, y_t
 
     return classifiers_fold_predictions, folds_real_labels, np.column_stack(classifiers_test_predictions), np.array(test_real_labels)
 
+def create_test_predictions(classifiers, X_test):
+    classifiers_test_predictions = []
+
+    for classifier in classifiers:
+        predictions_test = classifier.predict(X_test)
+        classifiers_test_predictions.append(predictions_test)
+
+        logging.info("Created test predictions for {}".format(classifier.get_name()))
+        print("Created test predictions for {}".format(classifier.get_name()))
+
+    return np.column_stack(classifiers_test_predictions)
+
 def stacking_test_accuracy(second_classifier, classifiers, X_train, y_train, X_test, y_test):
     classifiers_fold_predictions, folds_real_labels, classifiers_test_predictions, test_real_labels =\
         create_folds_and_test_predictions(classifiers, X_train, y_train, X_test, y_test)
@@ -69,6 +83,8 @@ def stacking_test_accuracy(second_classifier, classifiers, X_train, y_train, X_t
     print("Final stacking train accuracy: " + str(final_train_accuracy))
     print("Final stacking test accuracy: " + str(final_test_accuracy))
 
+    return second_classifier
+
 def stacking_submission(second_classifier, classifiers, X_train, y_train, X_test):
     classifiers_fold_predictions, folds_real_labels = create_folds_predictions(classifiers, X_train, y_train)
 
@@ -78,5 +94,7 @@ def stacking_submission(second_classifier, classifiers, X_train, y_train, X_test
 
     logging.info("Final stacking train accuracy: " + str(final_train_accuracy))
     print("Final stacking train accuracy: " + str(final_train_accuracy))
+
+    first_tier_classifiers_test_predictions = create_test_predictions(classifiers, X_test)
 
     return second_classifier.predict(X_test)

@@ -4,7 +4,7 @@ import itertools as it
 from sklearn.linear_model import LogisticRegression
 
 import numpy as np
-from stacking import stacking_test_accuracy, stacking_submission
+from stacking import stacking_test_accuracy, stacking_submission, create_test_predictions
 from fastText_keras import fastText_keras
 from plain_fastText import fastText_plain, fastText_plain_submission, FastTextClassifier
 from util import construct_dataset_from_files, construct_test_from_file, create_submission
@@ -105,7 +105,7 @@ def get_training_files_for_params(full_dataset, prefix):
 
     return {os.path.join('data', prefix + base_file): label for base_file, label in TRAINING_FILES_PARTIAL.items()}
 
-SUBMISSION = False
+SUBMISSION = False 
 FULL_DATASET = True 
 PREFIX = 'no_dups_'
 
@@ -152,8 +152,12 @@ def run_test_accuracy():
 
     classifiers = create_ensemble_classifiers()
     second_classifier = create_ensemble_second_tier_classifier()
-    stacking_test_accuracy(second_classifier, classifiers, X_train, y_train, X_test, y_test)
+    second_classifier = stacking_test_accuracy(second_classifier, classifiers, X_train, y_train, X_test, y_test)
 
+    tweets, ids = construct_test_from_file(TEST_FILE)
+    test_predictions = create_test_predictions(classifiers, tweets) 
+    predictions = second_classifier.predict(test_predictions)
+    create_submission(SUBMISSION_FILE, predictions, ids)
 
 def run_submission():
     training_files = get_training_files_for_params(full_dataset=FULL_DATASET, prefix=PREFIX)

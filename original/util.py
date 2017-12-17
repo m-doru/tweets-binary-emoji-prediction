@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 import logging
 
 def shuffle_dataset(X, y):
+    np.random.seed(0)
     p = np.random.permutation(len(y))
 
     X = X[p]
