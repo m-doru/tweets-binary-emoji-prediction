@@ -105,7 +105,7 @@ def get_training_files_for_params(full_dataset, prefix):
 
     return {os.path.join('data', prefix + base_file): label for base_file, label in TRAINING_FILES_PARTIAL.items()}
 
-SUBMISSION = False 
+SUBMISSION = True 
 FULL_DATASET = True 
 PREFIX = 'no_dups_'
 

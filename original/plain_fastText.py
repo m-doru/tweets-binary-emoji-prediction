@@ -29,6 +29,7 @@ class FastTextClassifier:
         os.remove(SWAP_FILE) # DELETE SWAP FILE AFTER USAGE
 
     def predict(self, X):
+        return self.predict_proba(X)
         result = []
 
         for tweet in X:
@@ -45,9 +46,9 @@ class FastTextClassifier:
             labels, probs = self.model.predict(tweet.strip(), 2)
 
             if labels[0] == '__label__-1':
-                result.append(probs)
+                result.append(probs[1])
             else:
-                result.append([probs[1], probs[0]])
+                result.append(probs[0])
 
         return np.array(result)
 

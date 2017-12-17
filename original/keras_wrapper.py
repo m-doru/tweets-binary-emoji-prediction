@@ -90,7 +90,6 @@ class KerasModelWrapper:
         X = pad_sequences(X, maxlen=self.max_seq_len)
 
     preds = self.model.predict(X)
-    preds[preds==0] = -1
     return preds
 
   def score(self, X, y):

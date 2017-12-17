@@ -2,7 +2,7 @@ from sklearn.model_selection import KFold, ShuffleSplit
 import numpy as np
 import logging
 
-NUMBER_FOLDS = 1
+NUMBER_FOLDS = 3
 
 
 def create_predictions_for_classifier(classifier, X_train, y_train, X_test):
@@ -13,8 +13,8 @@ def create_predictions_for_classifier(classifier, X_train, y_train, X_test):
 
 def create_folds_predictions(classifiers, X_train, y_train):
     np.random.seed(7)
-    #kFold = KFold(n_splits=NUMBER_FOLDS, shuffle=True, random_state=0)
-    kFold = ShuffleSplit(n_splits=NUMBER_FOLDS, random_state=0, test_size=0.2, train_size=None) 
+    kFold = KFold(n_splits=NUMBER_FOLDS, shuffle=True, random_state=0)
+    #kFold = ShuffleSplit(n_splits=NUMBER_FOLDS, random_state=0, test_size=0.2, train_size=None) 
 
     classifiers_fold_predictions = [[] for _ in range(len(classifiers))]
     folds_real_labels = []
@@ -97,4 +97,4 @@ def stacking_submission(second_classifier, classifiers, X_train, y_train, X_test
 
     first_tier_classifiers_test_predictions = create_test_predictions(classifiers, X_test)
 
-    return second_classifier.predict(X_test)
+    return second_classifier.predict(first_tier_classifiers_test_predictions)
