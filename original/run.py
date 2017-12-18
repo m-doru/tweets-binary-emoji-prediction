@@ -93,7 +93,7 @@ params_glove_keras_model_conv = {'model':None,
                             'epochs':2,
                             'architecture':'glove_conv'}
 params_glove_keras_model_conv2 = {'model':None,
-                                 'id':'glove_pretrained_keras_conv1D',
+                                 'id':'glove_pretrained_keras_conv1D_2',
                                  'batch_size':128,
                                  'epochs':2,
                                  'architecture':'glove_conv2'}
@@ -104,7 +104,7 @@ params_glove_keras_model_lstm = {'model':None,
                             'architecture':'glove_lstm'}
 
 params_glove_keras_model_lstm2 = {'model':None,
-                                 'id':'glove_pretrained_keras_lstm',
+                                 'id':'glove_pretrained_keras_lstm_2',
                                  'batch_size':128,
                                  'epochs':2,
                                  'architecture':'glove_lstm2'}
