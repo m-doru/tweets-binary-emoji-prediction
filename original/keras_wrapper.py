@@ -130,7 +130,10 @@ class KerasModelWrapper:
     df.drop(df.columns[-1], axis=1, inplace=True)
     embeddings = df.values.astype('float64')
 
-    os.remove(SWAP_FILE_TWEETS)
-    os.remove(SWAP_FILE_EMBEDDINGS)
+    try:
+        os.remove(SWAP_FILE_TWEETS)
+        os.remove(SWAP_FILE_EMBEDDINGS)
+    except Exception as e:
+        print("Exception occured in removing sent2vec swap file.", e)
 
     return embeddings.copy(order='C')
