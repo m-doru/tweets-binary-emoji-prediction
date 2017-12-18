@@ -1,8 +1,11 @@
 from sklearn.model_selection import KFold, ShuffleSplit
 import numpy as np
 import logging
+import pickle
 
 NUMBER_FOLDS = 3
+CLASSIFIERS_FOLD_PREDICTIONS = 'classifiers_folds_predictions.pkl'
+CLASSIFIERS_TEST_PREDICTIONS = 'classifiers_test_predictions.pkl'
 
 
 def create_predictions_for_classifier(classifier, X_train, y_train, X_test):
@@ -12,6 +15,7 @@ def create_predictions_for_classifier(classifier, X_train, y_train, X_test):
     return predictions
 
 def create_folds_predictions(classifiers, X_train, y_train):
+    print("Version with full fit")
     np.random.seed(7)
     kFold = KFold(n_splits=NUMBER_FOLDS, shuffle=True, random_state=0)
     #kFold = ShuffleSplit(n_splits=NUMBER_FOLDS, random_state=0, test_size=0.2, train_size=None) 
@@ -32,6 +36,10 @@ def create_folds_predictions(classifiers, X_train, y_train):
             predictions = create_predictions_for_classifier(classifier, X_train_fold, y_train_fold, X_test_fold)
 
             classifiers_fold_predictions[index] = classifiers_fold_predictions[index] + predictions.tolist()
+
+    print("Fitting classifiers to full dataset")
+    for classifier in classifiers:
+        classifier.fit(X_train, y_train)
 
     return np.column_stack(classifiers_fold_predictions), np.array(folds_real_labels)
 
@@ -87,6 +95,8 @@ def stacking_test_accuracy(second_classifier, classifiers, X_train, y_train, X_t
 
 def stacking_submission(second_classifier, classifiers, X_train, y_train, X_test):
     classifiers_fold_predictions, folds_real_labels = create_folds_predictions(classifiers, X_train, y_train)
+    with open(CLASSIFIERS_FOLD_PREDICTIONS, 'wb') as f:
+        pickle.dump([classifiers_fold_predictions, folds_real_labels], f)
 
     second_classifier.fit(classifiers_fold_predictions, folds_real_labels)
 
@@ -96,5 +106,8 @@ def stacking_submission(second_classifier, classifiers, X_train, y_train, X_test
     print("Final stacking train accuracy: " + str(final_train_accuracy))
 
     first_tier_classifiers_test_predictions = create_test_predictions(classifiers, X_test)
+
+    with open(CLASSIFIERS_TEST_PREDICTIONS, 'wb') as f:
+        pickle.dump(first_tier_classifiers_test_predictions, f)
 
     return second_classifier.predict(first_tier_classifiers_test_predictions)
