@@ -79,6 +79,27 @@ def pretrained_glove_keras_model_conv(X_train_tweets):
 
   return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH
 
+def pretrained_glove_keras_model_conv2(X_train_tweets):
+  np.random.seed(666)
+  embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
+
+  X_train, word_index, tokenizer = transform_tweets_to_sequences(X_train_tweets, True)
+
+  print('Shape of data tensor:', X_train.shape)
+
+  embedding_matrix = construct_embedding_matrix(word_index, embeddings_index)
+
+  model = Sequential()
+  model.add(Embedding(embedding_matrix.shape[0], embedding_matrix.shape[1], input_length=X_train.shape[1], weights=[embedding_matrix]))
+  model.add(Convolution1D(nb_filter=32, filter_length=3, border_mode='same', activation='relu'))
+  model.add(MaxPooling1D(pool_length=2))
+  model.add(Flatten())
+  model.add(Dense(250, activation='relu'))
+  model.add(Dense(1, activation='sigmoid'))
+  model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+  return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH
+
 def pretrained_glove_keras_model_lstm(X_train_tweets):
   np.random.seed(777)
   embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
@@ -96,6 +117,31 @@ def pretrained_glove_keras_model_lstm(X_train_tweets):
                       input_length=MAX_SEQUENCE_LENGTH,
                       trainable=False))
                       
+  model.add(Convolution1D(nb_filter=32, filter_length=3, border_mode='same', activation='relu'))
+  model.add(MaxPooling1D(pool_length=2))
+  model.add(LSTM(100))
+  model.add(Dense(1, activation='sigmoid'))
+  model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
+  return model, X_train, tokenizer, MAX_SEQUENCE_LENGTH
+
+def pretrained_glove_keras_model_lstm2(X_train_tweets):
+  np.random.seed(888)
+  embeddings_index = read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
+
+  X_train, word_index, tokenizer = transform_tweets_to_sequences(X_train_tweets, True)
+
+  print('Shape of data tensor:', X_train.shape)
+
+  embedding_matrix = construct_embedding_matrix(word_index, embeddings_index)
+
+  model = Sequential()
+  model.add(Embedding(embedding_matrix.shape[0],
+                      embedding_matrix.shape[1],
+                      weights=[embedding_matrix],
+                      input_length=MAX_SEQUENCE_LENGTH,
+                      trainable=False))
+
   model.add(Convolution1D(nb_filter=32, filter_length=3, border_mode='same', activation='relu'))
   model.add(MaxPooling1D(pool_length=2))
   model.add(LSTM(100))

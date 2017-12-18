@@ -92,12 +92,22 @@ params_glove_keras_model_conv = {'model':None,
                             'batch_size':128,
                             'epochs':2,
                             'architecture':'glove_conv'}
+params_glove_keras_model_conv2 = {'model':None,
+                                 'id':'glove_pretrained_keras_conv1D',
+                                 'batch_size':128,
+                                 'epochs':2,
+                                 'architecture':'glove_conv2'}
 params_glove_keras_model_lstm = {'model':None,
                             'id':'glove_pretrained_keras_lstm',
                             'batch_size':128,
                             'epochs':2,
                             'architecture':'glove_lstm'}
 
+params_glove_keras_model_lstm2 = {'model':None,
+                                 'id':'glove_pretrained_keras_lstm',
+                                 'batch_size':128,
+                                 'epochs':2,
+                                 'architecture':'glove_lstm2'}
 
 def get_training_files_for_params(full_dataset, prefix):
     if full_dataset:
@@ -115,6 +125,12 @@ np.random.seed(0)
 
 def create_ensemble_classifiers():
     classifiers = []
+
+    classifier = KerasModelWrapper(**params_glove_keras_model_conv2)
+    classifiers.append(classifier)
+
+    classifier = KerasModelWrapper(**params_glove_keras_model_lstm2)
+    classifiers.append(classifier)
 
     classifier = trained_sent2vec_keras_model()  
     classifiers.append(classifier)
