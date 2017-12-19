@@ -104,7 +104,16 @@ class KerasModelWrapper:
                     ' > ' +
                     SWAP_FILE_EMBEDDINGS, shell=True))
 
-    embeddings = np.genfromtxt(SWAP_FILE_EMBEDDINGS)
+    embeddings = []
+
+    with open(SWAP_FILE_EMBEDDINGS, 'r') as f:
+        for line in f:
+            try:
+                values = line.strip().split()
+                coefs = np.asarray(values, dtype='float32')
+                embeddings.append(coefs)
+            except Exception:
+                pass
 
     try:
         os.remove(SWAP_FILE_TWEETS)
@@ -112,4 +121,4 @@ class KerasModelWrapper:
     except Exception as e:
         print("Exception occured in removing sent2vec swap file.", e)
 
-    return embeddings
+    return np.asarray(embeddings)

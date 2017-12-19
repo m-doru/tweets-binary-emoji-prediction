@@ -126,13 +126,13 @@ np.random.seed(0)
 def create_ensemble_classifiers():
     classifiers = []
 
+    classifier = trained_sent2vec_keras_model()  
+    classifiers.append(classifier)
+
     classifier = KerasModelWrapper(**params_glove_keras_model_lstm2)
     classifiers.append(classifier)
 
     classifier = KerasModelWrapper(**params_glove_keras_model_conv2)
-    classifiers.append(classifier)
-
-    classifier = trained_sent2vec_keras_model()  
     classifiers.append(classifier)
 
     classifier = KerasModelWrapper(**params_glove_keras_model_conv)
