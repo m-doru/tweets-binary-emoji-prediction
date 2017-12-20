@@ -30,6 +30,7 @@ class KerasModelWrapper:
         self.model_weights = model.get_weights()
 
   def fit(self, X, y):
+    print('Fitting model {}'.format(self.id))
     y = y.copy()
     y[y==-1] = 0
 
@@ -63,7 +64,7 @@ class KerasModelWrapper:
   def predict(self, X):
     if self.architecture == 'sent2vec':
         X = self._get_sent2vec_embeddings(X)
-    elif self.architecture in ['glove_conv','glove_lstm']:
+    elif self.architecture in ['glove_conv','glove_lstm', 'glove_conv2', 'glove_lstm2']:
         X = self.tokenizer.texts_to_sequences(X)
         X = pad_sequences(X, maxlen=self.max_seq_len)
 
@@ -103,7 +104,16 @@ class KerasModelWrapper:
                     ' > ' +
                     SWAP_FILE_EMBEDDINGS, shell=True))
 
-    embeddings = np.genfromtxt(SWAP_FILE_EMBEDDINGS)
+    embeddings = []
+
+    with open(SWAP_FILE_EMBEDDINGS, 'r') as f:
+        for line in f:
+            try:
+                values = line.strip().split()
+                coefs = np.asarray(values, dtype='float32')
+                embeddings.append(coefs)
+            except Exception:
+                pass
 
     try:
         os.remove(SWAP_FILE_TWEETS)
@@ -111,4 +121,4 @@ class KerasModelWrapper:
     except Exception as e:
         print("Exception occured in removing sent2vec swap file.", e)
 
-    return embeddings
+    return np.asarray(embeddings)
