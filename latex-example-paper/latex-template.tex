@@ -1,0 +1,35 @@
+\documentclass[10pt,conference,compsocconf]{IEEEtran}
+
+\usepackage{hyperref}
+\usepackage{graphicx}	% For figure environment
+
+
+\begin{document}
+\title{Stochastic Accuracy Ascent in the text classification competition}
+
+\author{
+	Ciprian Baetu, Doru Musuroi, Joseph Valvala
+}
+
+\maketitle
+
+\begin{abstract}
+  An important challenge in text classification tasks is obtaining the proper embeddings
+  on which the \textit{usual suspects} can be trained. We present in this report
+  our work with three types of text embeddings - GloVe, Fasttext and Sent2vec - that we used to 
+  to create a baseline with models like Logistic Regression and SVM with linear kernel, but also to put in place our best-performing model based on a meta ensembling pipeline composed of neural networks as base predictors and a linear model as the stacking model.
+\end{abstract}
+
+\section{Introduction}
+\section{Sent2vec baseline}
+\label{sec:sent2vec}
+\section{Fasttext grid-search}
+\label{sec:fasttext}
+\section{Stacking model}
+\section{Results}
+
+\section{Summary}
+\bibliographystyle{IEEEtran}
+\bibliography{literature}
+
+\end{document}
