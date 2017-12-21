@@ -5,6 +5,8 @@ import os
 import numpy as np
 from sklearn.model_selection import KFold
 
+from run import USE_PRETRAIN
+
 NUMBER_FOLDS = 3
 
 
@@ -54,21 +56,38 @@ def create_folds_predictions(classifiers, X_train, y_train):
     classifiers_fold_predictions = [[] for _ in range(len(classifiers))]
     folds_real_labels = []
 
-    for train_indices, test_indices in kFold.split(X_train):
-        X_train_fold = X_train[train_indices]
-        y_train_fold = y_train[train_indices]
+    if USE_PRETRAIN:
+        filenames = ['fold_1_', 'fold_2_', 'fold_3']
+        for fn in filenames:
+            X_train_fold = np.load(fn + 'x_train.npy')
+            y_train_fold = np.load(fn + 'y_train_npy')
+            X_test_fold = np.load(fn + 'x_test.npy')
+            y_test_fold = np.load(fn + 'y_test.npy')
 
-        X_test_fold = X_train[test_indices]
-        y_test_fold = y_train[test_indices]
+            folds_real_labels += y_test_fold.tolist()
 
-        folds_real_labels += y_test_fold.tolist()
+            for index, classifier in enumerate(classifiers):
+                classifier.fit(X_train_fold, y_train_fold)  # train on train folds
+                predictions = classifier.predict(X_test_fold)  # predict on predict fold
 
-        for index, classifier in enumerate(classifiers):
-            classifier.fit(X_train_fold, y_train_fold)  # train on train folds
-            predictions = classifier.predict(X_test_fold)  # predict on predict fold
+                classifiers_fold_predictions[index] = classifiers_fold_predictions[index] + predictions.tolist()
+                # append data to predictions list
+    else:
+        for train_indices, test_indices in kFold.split(X_train):
+            X_train_fold = X_train[train_indices]
+            y_train_fold = y_train[train_indices]
 
-            classifiers_fold_predictions[index] = classifiers_fold_predictions[index] + predictions.tolist()
-            # append data to predictions list
+            X_test_fold = X_train[test_indices]
+            y_test_fold = y_train[test_indices]
+
+            folds_real_labels += y_test_fold.tolist()
+
+            for index, classifier in enumerate(classifiers):
+                classifier.fit(X_train_fold, y_train_fold)  # train on train folds
+                predictions = classifier.predict(X_test_fold)  # predict on predict fold
+
+                classifiers_fold_predictions[index] = classifiers_fold_predictions[index] + predictions.tolist()
+                # append data to predictions list
 
     print("Fitting classifiers to full dataset")
     for classifier in classifiers:

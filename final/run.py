@@ -28,6 +28,12 @@ SUBMISSION_FILE = os.path.join('processed_data', 'submission.csv')
 FULL_DATASET = True
 PREFIX = 'no_dups_'
 
+################## PRETRAIN OR NOT ##############
+USE_PRETRAIN = True
+#################################################
+
+
+
 np.random.seed(0)
 
 
