@@ -183,6 +183,7 @@ class Sent2vecKerasWrapper:
 
     try:
       os.remove(SWAP_FILE_TWEETS)
+      os.remove(tweets_embeddings_path)
     except Exception as e:
       print("Exception occured in removing sent2vec swap file.", e)
 
