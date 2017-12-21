@@ -12,7 +12,7 @@ PICKLE_TRAIN = os.path.join('..', 'pred_pickles2','classifiers_folds_predictions
 PICKLE_TEST = os.path.join('..', 'pred_pickles2', 'classifiers_test_predictions.pkl')
 
 TEST_FILE = os.path.join('..', 'data', 'twitter-datasets', 'test_data.txt')
-SUBMISSION_FILE = os.path.join('processed_data', 'submission.csv')
+SUBMISSION_FILE = os.path.join('submission.csv')
 
 def compute_score(predictions, labels):
     return (np.count_nonzero(predictions == labels) * 1.0 ) / len(labels)
