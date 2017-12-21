@@ -14,7 +14,7 @@ def process(process_function, file_prefix):
     '''
     for filename in FILES_PARTIAL + FILES_FULL:
         with codecs.open(os.path.join('..', "data", 'twitter-datasets', filename), 'r', encoding='utf8') as g, \
-                codecs.open(os.path.join('processed_data', file_prefix + '_' + filename), 'w', encoding='utf8') as f:
+                codecs.open(os.path.join('data', file_prefix + '_' + filename), 'w', encoding='utf8') as f:
 
             tweets = g.readlines()
             processed_tweets = process_function(tweets)

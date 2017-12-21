@@ -74,6 +74,14 @@ class GloveKerasWrapper:
       with open(tokenizer_serialization_path, 'rb') as f:
         self.tokenizer = pickle.load(f)
     else:
+      logging.info("Did not find model. State below.")
+      logging.info("Required model serialization path: " + str(model_serialization_path) + ". Exists: " + str(os.path.exists(model_serialization_path)))
+      logging.info("Required tokenizer path: " + str(model_serialization_path) + ". Exists: " + str(os.path.exists(tokenizer_serialization_path)))
+
+      print("Did not find model. State below.")
+      print("Required model serialization path: " + str(model_serialization_path) + ". Exists: " + str(os.path.exists(model_serialization_path)))
+      print("Required tokenizer path: " + str(model_serialization_path) + ". Exists: " + str(os.path.exists(tokenizer_serialization_path)))
+
       np.random.seed(self.random_seed)
       embeddings_index = self._read_pretrained_glove_embeddings(PRETRAINED_EMBEDDINGS_FILE)
       X_train, word_index, self.tokenizer = self._transform_tweets_to_sequences(X, True)
