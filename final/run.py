@@ -1,12 +1,13 @@
 import logging
 import os
-
 import numpy as np
-from fastText_wrapper import FastTextClassifier
-from keras_wrapper import KerasModelWrapper
-from params_wrappers import *
-from sent2vec_keras import trained_sent2vec_keras_model
 from sklearn.linear_model import LogisticRegression
+
+from params_wrappers import *
+from fastText_wrapper import FastTextClassifier
+from sent2vecwrapper import Sent2vecKerasWrapper
+from glovewrapper import GloveKerasWrapper
+
 from stacking import stack_classifiers
 from util import construct_dataset_from_files, construct_test_from_file, create_submission, \
     get_training_files_for_params
@@ -39,19 +40,22 @@ def create_stacking_classifiers():
     '''
     classifiers = []
 
-    classifier = trained_sent2vec_keras_model()
+    classifier = GloveKerasWrapper(**params_glove_keras_model_conv)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_lstm2)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_conv_2)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_conv2)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_conv_3)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_conv)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_lstm)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_lstm)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_lstm_2)
+    classifiers.append(classifier)
+
+    classifier = Sent2vecKerasWrapper(**params_sent2vec_keras_model_dense)
     classifiers.append(classifier)
 
     classifier = FastTextClassifier(params_fastText, "fastText")
