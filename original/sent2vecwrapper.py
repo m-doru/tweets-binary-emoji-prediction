@@ -99,7 +99,7 @@ class Sent2vecKerasWrapper:
     :return: the path where the embeddings should be serialized
     '''
     dirs_path = self.get_serialization_directory_path()
-    embeddings_name = '_'.join([id_x, 'sent2vec','embeddings','.np'])
+    embeddings_name = '_'.join([id_x, 'sent2vec','embeddings'])
     path = os.path.join(dirs_path, embeddings_name)
 
     return path
@@ -146,7 +146,7 @@ class Sent2vecKerasWrapper:
 
     # if the embeddings are already computed, simply return them
     if os.path.exists(tweets_embeddings_path):
-      return np.load(tweets_embeddings_path)
+      return np.load(tweets_embeddings_path + '.npy')
 
     # otherwise, write the tweets in a file and use sent2vec command line tool to compute embeddings for it
     with open(SWAP_FILE_TWEETS, 'w', encoding='utf8') as f:
