@@ -34,7 +34,7 @@ params_glove_keras_model_conv_2 = {'id': 'glove_pretrained_keras_conv1D_2',
                                    'serializations_directory': SERIALIZED_MODELS_PATH
                                    }
 
-params_glove_keras_model_conv_3 = {'id': 'glove_pretrained_keras_conv1D_2',
+params_glove_keras_model_conv_3 = {'id': 'glove_pretrained_keras_conv1D_3',
                                    'architecture': 'conv',
                                    'batch_size': 256,
                                    'epochs': 2,
