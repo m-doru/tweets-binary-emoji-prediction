@@ -104,8 +104,16 @@ class GloveKerasWrapper:
     :param X: Textual data to which we will do inference. One text per row
     :return: Probabilities predictions
     '''
-    X = self.tokenizer.texts_to_sequences(X)
-    X = pad_sequences(X, maxlen=MAX_SEQUENCE_LENGTH)
+     id_x = sha1(X).hexdigest()
+     sequences_serialization_path = self.get_sequences_serialization_path()
+
+     if os.path.exists(sequences_serialization_path):
+        X_train = np.load(sequences_serialization_path + '.npy')
+        logging.info("Loaded sent2vec tokenizer sequences from {}".format(sequences_serialization_path))
+    else:
+        X_train = self._get_sent2vec_embeddings(X)
+        np.save(sequences_serialization_path, X_train)
+        logging.info("Saved sent2vec tokenizer sequences to {}".format(sequences_serialization_path))
 
     preds = self.model.predict_proba(X)
     return preds
