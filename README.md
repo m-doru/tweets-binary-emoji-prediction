@@ -2,6 +2,15 @@
 
 This repo contains code and instructions necessary to classify tweets as containing ':)' or ':('. The corresponding [kaggle competition](https://www.kaggle.com/c/epfml17-text) was part of CS-433 Machine learning class from EPFL.
 
+## Directory Tree description
+**data** folder which should be populated as decribed below
+
+**slang_dict_parsing** contains code which scrapped [noslang](noslang.com/dictionary/) website for slang words but did not result in accuracy improvements so it is not used
+
+**src** folder containing the *main* code as run.py and the models.
+
+**templates_course** the code provided by default in the project
+
 ## Design decisions
 
 
