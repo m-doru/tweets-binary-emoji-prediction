@@ -1,0 +1,16 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Sent2vec bBseline}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Method description}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{Method's results}{section.2}% 4
+\BOOKMARK [1][-]{section.3}{FastText baseline}{}% 5
+\BOOKMARK [2][-]{subsection.3.1}{Motivation}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.2}{How does it work?}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.3}{fastText on our dataset}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.4}{What was the root source of the big differences?}{section.3}% 9
+\BOOKMARK [2][-]{subsection.3.5}{What did we decide to do?}{section.3}% 10
+\BOOKMARK [2][-]{subsection.3.6}{Trying fastText with linear classifiers}{section.3}% 11
+\BOOKMARK [1][-]{section.4}{GloVe Baseline}{}% 12
+\BOOKMARK [1][-]{section.5}{Stacking models}{}% 13
+\BOOKMARK [1][-]{section.6}{Results}{}% 14
+\BOOKMARK [1][-]{section.7}{Conclusion}{}% 15
+\BOOKMARK [1][-]{section*.1}{References}{}% 16
