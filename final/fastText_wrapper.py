@@ -32,7 +32,7 @@ class FastTextClassifier:
         for param, value in list(sorted(self.params.items(), key=lambda x: x[0])):
             folder_name += (str(param) + ':' + str(value) + ',')
 
-        return folder_name[:-1]  # don't consider the last comma
+        return os.path.join('serialized_models', folder_name[:-1])  # don't consider the last comma
 
     def _get_identifier_for_model_file(self, X, y):
         '''
