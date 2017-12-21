@@ -67,7 +67,8 @@ class Sent2vecKerasWrapper:
     Returns a string representations of the models parameters used for serialization
     :return: string representation
     '''
-    return '_'.join([self.id, self.architecture, self.batch_size, self.epochs, self.random_seed])
+    return '_'.join([str(self.id), str(self.architecture), str(self.batch_size), str(self.epochs),
+                     str(self.random_seed)])
 
   def get_serialization_directory_path(self):
     '''
