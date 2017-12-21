@@ -145,7 +145,7 @@ def get_training_files_for_params(full_dataset, prefix):
 
 SUBMISSION = True 
 FULL_DATASET = True 
-PREFIX = 'stanford_'
+PREFIX = 'no_dups_'
 
 np.random.seed(0)
 
