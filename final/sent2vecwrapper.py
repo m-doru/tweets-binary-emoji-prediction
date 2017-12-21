@@ -31,6 +31,9 @@ class Sent2vecKerasWrapper:
     self.random_seed = random_state
     self.serializations_directory = serializations_directory
 
+  def get_name(self):
+    return self.id
+
   def fit(self, X, y):
     id_x = sha1(X).hexdigest()
     id_y = sha1(y).hexdigest()
@@ -57,7 +60,14 @@ class Sent2vecKerasWrapper:
       self.model.save(model_serialization_path)
 
   def predict(self, X):
-    X_train = self._get_sent2vec_embeddings(X)
+    id_x = sha1(X).hexdigest()
+    sequences_serialization_path = self.get_sequences_serialization_path()
+
+    if os.path.exists(sequences_serialization_path):
+        X_train = np.load(sequences_serialization_path + '.npy')
+    else:
+        X_train = self._get_sent2vec_embeddings(X)
+        np.save(sequences_serialization_path, X_train)
     preds = self.model.predict_proba(X_train)
 
     return preds
@@ -89,6 +99,13 @@ class Sent2vecKerasWrapper:
     dirs_path = self.get_serialization_directory_path()
     serialization_name = '_'.join([id_x, id_y, '.hdf5'])
     path = os.path.join(dirs_path, serialization_name)
+
+    return path
+
+  def get_sequences_serialization_path(self, id_x):
+    dirs_path = self.get_serialization_directory_path()
+    embeddings_name = '_'.join([id_x, 'sent2vec','sequences'])
+    path = os.path.join(dirs_path, embeddings_name)
 
     return path
 

@@ -43,6 +43,9 @@ class GloveKerasWrapper:
     self.serializations_directory = serializations_directory
     self.model = None
 
+  def get_name(self):
+    return self.id
+
   def fit(self, X, y):
     '''
     Method that either loads the model if a serialization with this data exists or trains the model otherwise. The
