@@ -76,6 +76,8 @@ class GloveKerasWrapper:
       X_train, word_index, self.tokenizer = self._transform_tweets_to_sequences(X, True)
       embedding_matrix = self._construct_embedding_matrix(word_index, embeddings_index)
 
+      # make sure the serialization directory is created before trying to serialize anything
+      self.create_serialization_directory()
       # serialize the tokenizer to be used for computing sequences at predict time
       with open(tokenizer_serialization_path, 'wb') as f:
         pickle.dump(self.tokenizer, f)
@@ -91,7 +93,6 @@ class GloveKerasWrapper:
       self.model.fit(X_train, y)
 
       # serialize the model
-      self.create_serialization_directory()
       self.model.save(model_serialization_path)
 
   def predict(self, X):
