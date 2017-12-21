@@ -23,6 +23,8 @@ TRAINING_FILES_PARTIAL = {'train_pos.txt': 1,
 TEST_FILE = os.path.join('..', 'data', 'twitter-datasets', 'test_data.txt')
 SUBMISSION_FILE = os.path.join('processed_data', 'submission.csv')
 
+SERIALIZED_MODELS_PATH = 'serialized_models'
+
 params_keras = {
     'ngram_range': 1,
     'max_features': 20000,
