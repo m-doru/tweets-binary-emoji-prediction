@@ -8,8 +8,7 @@ from stacking import stacking_test_accuracy, stacking_submission, create_test_pr
 from fastText_keras import fastText_keras
 from plain_fastText import fastText_plain, fastText_plain_submission, FastTextClassifier
 from util import construct_dataset_from_files, construct_test_from_file, create_submission
-from sent2vec_keras import trained_sent2vec_keras_model
-from keras_wrapper import KerasModelWrapper
+from glovewrapper import GloveKerasWrapper
 
 logging.basicConfig(filename=os.path.join('logs', 'logs.log'), level=logging.INFO,
                     format='%(asctime)s.%(msecs)03d %(levelname)s %(module)s - %(funcName)s: %(message)s',
@@ -87,27 +86,54 @@ multiple_params_fastText = {'lr': [0.05],  # try to vary this further
                             't': [0.0001],
                             'verbose': [2]}
 
-params_glove_keras_model_conv = {'model':None,
-                            'id':'glove_pretrained_keras_conv1D',
-                            'batch_size':128,
-                            'epochs':2,
-                            'architecture':'glove_conv'}
-params_glove_keras_model_conv2 = {'model':None,
-                                 'id':'glove_pretrained_keras_conv1D_2',
-                                 'batch_size':128,
-                                 'epochs':2,
-                                 'architecture':'glove_conv2'}
-params_glove_keras_model_lstm = {'model':None,
-                            'id':'glove_pretrained_keras_lstm',
-                            'batch_size':128,
-                            'epochs':2,
-                            'architecture':'glove_lstm'}
 
-params_glove_keras_model_lstm2 = {'model':None,
-                                 'id':'glove_pretrained_keras_lstm_2',
-                                 'batch_size':128,
+params_glove_keras_model_conv = {'id':'glove_pretrained_keras_conv1D',
+                                 'architecture':'conv',
+                                 'batch_size':256,
                                  'epochs':2,
-                                 'architecture':'glove_lstm2'}
+                                 'random_state':777,
+                                 'serializations_directory':SERIALIZED_MODELS_PATH
+                                 }
+params_glove_keras_model_conv_2 = {'id':'glove_pretrained_keras_conv1D_2',
+                                 'architecture':'conv',
+                                 'batch_size':256,
+                                 'epochs':2,
+                                 'random_state':778,
+                                 'serializations_directory':SERIALIZED_MODELS_PATH
+                                 }
+
+params_glove_keras_model_conv_3 = {'id':'glove_pretrained_keras_conv1D_2',
+                                   'architecture':'conv',
+                                   'batch_size':256,
+                                   'epochs':2,
+                                   'random_state':779,
+                                   'serializations_directory':SERIALIZED_MODELS_PATH
+                                   }
+
+params_glove_keras_model_lstm = {'id':'glove_pretrained_keras_lstm',
+                                   'architecture':'lstm',
+                                   'batch_size':256,
+                                   'epochs':2,
+                                   'random_state':777,
+                                   'serializations_directory':SERIALIZED_MODELS_PATH
+                                   }
+
+params_glove_keras_model_lstm_2 = {'id':'glove_pretrained_keras_lstm_2',
+                                 'architecture':'lstm',
+                                 'batch_size':256,
+                                 'epochs':2,
+                                 'random_state':778,
+                                 'serializations_directory':SERIALIZED_MODELS_PATH
+                                 }
+
+params_sent2vec_keras_model_dense = {'id':'sent2vec_pretrained_keras_dense',
+                                   'architecture':'dense',
+                                   'batch_size':256,
+                                   'epochs':2,
+                                   'random_state':776,
+                                   'serializations_directory':SERIALIZED_MODELS_PATH
+                                   }
+
 
 def get_training_files_for_params(full_dataset, prefix):
     if full_dataset:
@@ -117,7 +143,7 @@ def get_training_files_for_params(full_dataset, prefix):
 
 SUBMISSION = True 
 FULL_DATASET = True 
-PREFIX = 'no_dups_'
+PREFIX = 'stanford_'
 
 np.random.seed(0)
 
@@ -126,19 +152,22 @@ np.random.seed(0)
 def create_ensemble_classifiers():
     classifiers = []
 
-    classifier = trained_sent2vec_keras_model()  
+    #classifier = trained_sent2vec_keras_model()  
+    #classifiers.append(classifier)
+
+    classifier = GloveKerasWrapper(**params_glove_keras_model_conv)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_lstm2)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_conv_2)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_conv2)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_conv_3)
+    classifiers.append(classifier)
+    
+    classifier = GloveKerasWrapper(**params_glove_keras_model_lstm)
     classifiers.append(classifier)
 
-    classifier = KerasModelWrapper(**params_glove_keras_model_conv)
-    classifiers.append(classifier)
-
-    classifier = KerasModelWrapper(**params_glove_keras_model_lstm)
+    classifier = GloveKerasWrapper(**params_glove_keras_model_lstm_2)
     classifiers.append(classifier)
 
     classifier = FastTextClassifier(parameters_fastText_plain, "fastText_plain_" + str(parameters_fastText_plain))
