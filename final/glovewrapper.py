@@ -115,7 +115,7 @@ class GloveKerasWrapper:
     id_x = sha1(X).hexdigest()
     sequences_serialization_path = self.get_sequences_serialization_path(id_x)
 
-    if os.path.exists(sequences_serialization_path):
+    if os.path.exists(sequences_serialization_path + '.npy'):
         X = np.load(sequences_serialization_path + '.npy')
         logging.info("Loaded glove tokenizer sequences from {}".format(sequences_serialization_path))
     else:
