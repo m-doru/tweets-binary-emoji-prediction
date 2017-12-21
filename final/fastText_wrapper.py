@@ -64,7 +64,7 @@ class FastTextClassifier:
         :return: None
         '''
         file_identifier = self._get_identifier_for_model_file(X, y)
-        serialized_file = os.path.join('serialized_models', self.folder, file_identifier)
+        serialized_file = os.path.join(self.folder, file_identifier)
 
         if os.path.isfile(serialized_file):
             print("Loading the model from file " + str(serialized_file))

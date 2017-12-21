@@ -1,5 +1,6 @@
 import logging
 import pickle
+import os
 
 import numpy as np
 from sklearn.model_selection import KFold
@@ -19,6 +20,20 @@ def construct_test_predictions_filename(classifiers):
         filename += (str(classifier.get_name()) + '_')
 
     return filename[-1]
+
+def construct_train_predictions_filename(classifiers):
+    '''
+    Function that constructs the filename that identifies the folds predictions given by a set of classifiers.
+    :param classifiers: the list of classifiers that did the prediction
+    :return: the name of the file where we should serialize the predictions of the classifiers
+    '''
+    filename = 'folds_predictions_'
+
+    for classifier in classifiers:
+        filename += (str(classifier.get_name()) + '_')
+
+    return filename[:-1]
+
 
 
 def create_folds_predictions(classifiers, X_train, y_train):
@@ -95,7 +110,18 @@ def stack_classifiers(second_classifier, classifiers, X_train, y_train, X_test):
     :param X_test: the test set instances
     :return: the predictions of the second tier classifier on the test set.
     '''
-    classifiers_fold_predictions, folds_real_labels = create_folds_predictions(classifiers, X_train, y_train)
+    train_preds_filename = construct_train_predictions_filename(classifiers)
+
+    print(train_preds_filename)
+    if os.path.exists(train_preds_filename):
+        with open(train_preds_filename, 'rb') as f:
+            [classifiers_fold_predictions, folds_real_labels] = pickle.load(f)
+    else:
+        classifiers_fold_predictions, folds_real_labels = create_folds_predictions(classifiers, X_train, y_train)
+
+        with open(train_preds_filename, 'wb') as f:
+            pickle.dump([classifiers_fold_predictions, folds_real_labels], f)
+
     second_classifier.fit(classifiers_fold_predictions, folds_real_labels)
 
     final_train_accuracy = second_classifier.score(classifiers_fold_predictions, folds_real_labels)
