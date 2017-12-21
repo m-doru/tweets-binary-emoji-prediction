@@ -50,7 +50,7 @@ class Sent2vecKerasWrapper:
 
       y = y.copy()
       y[y == -1] = 0
-      self.model.fit(X_train, y)
+      self.model.fit(X_train, y, epochs=self.epochs, batch_size=self.batch_size)
 
       # serialize the model
       self._create_serialization_directory()
