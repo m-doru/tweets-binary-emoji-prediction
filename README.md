@@ -1,6 +1,6 @@
 # Tweets classification - EPFL CS-433
 
-This repo contains code and instructions necessary to classify tweets as containing ':)' or ':('. The corresponding [kaggle competition](https://www.kaggle.com/c/epfml17-text) was part of CS-433 Machine learning class from EPFL.
+This repo contains code and instructions necessary to classify tweets as containing ':)' or ':('. The corresponding [kaggle competition](https://www.kaggle.com/c/epfml17-text) was part of CS-433 Machine learning class from EPFL. Our team is **Martian Jaggirnauts**
 
 ## Directory Tree description
 **data** folder which should be populated as decribed below
